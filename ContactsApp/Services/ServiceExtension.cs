@@ -1,22 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ContactsApp.ViewModels;
+using ContactsApp.Views;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContactsApp.Services
 {
     public static class ServiceExtension
     {
-        public static IServiceProvider ServiceProvider { get; private set; }
-
-        public static void ConfigureServices()
+        public static IServiceCollection ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var serviceCollection = new ServiceCollection();
+            RegisterConnectionString(services, configuration);
+            services.AddScoped<IContactService, ContactService>();
+            services.AddTransient<MainWindowViewModel>();
+            services.AddTransient<AddEditContactViewModel>();
 
-            serviceCollection.AddDbContext<ContactsDbContext>(options =>
-                options.UseSqlServer("Server=.; Database=Kinopoisk;Integrated Security=false;User ID=sa;Password=1;TrustServerCertificate=True;"));
-
-            serviceCollection.AddTransient<IContactService, ContactService>();
-
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            services.AddTransient<MainWindow>();
+            return services;
+        }
+        public static void RegisterConnectionString(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<ContactsDbContext>(x => x.UseSqlServer(configuration.GetConnectionString("Default")));
         }
     }
 }

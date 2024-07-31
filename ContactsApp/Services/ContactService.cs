@@ -11,7 +11,10 @@ namespace ContactsApp.Services
             _context = context;
         }
 
-        public IEnumerable<Contact> GetAllContacts() => _context.Contacts.ToList();
+        public IEnumerable<Contact> GetAllContacts()
+        {
+            return _context.Contacts.ToList();
+        }
 
         public Contact GetContactById(int id)
         {
@@ -27,6 +30,7 @@ namespace ContactsApp.Services
 
         public void UpdateContact(Contact contact)
         {
+            _context.ChangeTracker.Clear();
             _context.Contacts.Update(contact);
             _context.SaveChanges();
         }

@@ -3,23 +3,34 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:ContactsApp.Views"
         xmlns:vm="clr-namespace:ContactsApp.ViewModels"
+        xmlns:conv="clr-namespace:ContactsApp.Converters"
         Title="Записная книжка" Height="350" Width="525">
-
-    <Window.DataContext>
-        <vm:MainVM />
-    </Window.DataContext>
-
+    <Window.Resources>
+        <conv:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+    </Window.Resources>
     <Grid>
-        <ListView ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ListView Grid.Row="0" ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="First Name" DisplayMemberBinding="{Binding FirstName}" />
                     <GridViewColumn Header="Last Name" DisplayMemberBinding="{Binding LastName}" />
                     <GridViewColumn Header="Phone Number" DisplayMemberBinding="{Binding PhoneNumber}" />
+                    <GridViewColumn Header="Address" DisplayMemberBinding="{Binding Address}" />
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <Button Content="Добавить контакт" Command="{Binding AddContactCommand}" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+            <Button Width="100" Height="30" Content="Добавить контакт" Command="{Binding AddContactCommand}" Margin="5"/>
+            <Button Width="100" Height="30" Content="Удалить контакт" Command="{Binding DeleteContactCommand}" Margin="5" 
+            IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
+            <Button Width="100" Height="30" Content="Изменить контакт" Command="{Binding EditContactCommand}" Margin="5" 
+                    IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
+        </StackPanel>
     </Grid>
 </Window>

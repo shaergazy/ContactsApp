@@ -8,10 +8,14 @@ namespace ContactsApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(MainVM viewModel)
+        public MainWindow()
         {
-            InitializeComponent();
+            
+        }
+        public MainWindow(MainWindowViewModel viewModel)
+        {
             DataContext = viewModel;
+            InitializeComponent();
         }
     }
 }
