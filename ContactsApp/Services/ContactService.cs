@@ -1,4 +1,5 @@
 ﻿using ContactsApp.Models;
+using System.Text.RegularExpressions;
 
 namespace ContactsApp.Services
 {
@@ -43,6 +44,20 @@ namespace ContactsApp.Services
                 _context.Contacts.Remove(contact);
                 _context.SaveChanges();
             }
+        }
+
+        public bool IsContactUnique(Contact contact)
+        {
+            return !_context.Contacts.Any(x => x.FirstName == contact.FirstName 
+                                                   && x.LastName == contact.LastName
+                                                   && x.PhoneNumber == contact.PhoneNumber
+                                                   && x.Id != contact.Id);
+        }
+
+        public bool IsPhoneNumberValid(string phoneNumber)
+        {
+            string pattern = @"^0\d{9}$";
+            return Regex.IsMatch(phoneNumber, pattern);
         }
     }
 }

@@ -3,7 +3,6 @@ using ContactsApp.Models;
 using ContactsApp.Services;
 using ContactsApp.Views;
 using System.ComponentModel;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -11,7 +10,7 @@ namespace ContactsApp.ViewModels
 {
     public class AddEditContactViewModel : INotifyPropertyChanged
     {
-        private readonly ContactService _contactService;
+        private readonly IContactService _contactService;
         private Contact _contact;
 
         public Contact Contact
@@ -27,7 +26,7 @@ namespace ContactsApp.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public AddEditContactViewModel(ContactService contactService)
+        public AddEditContactViewModel(IContactService contactService)
         {
             _contactService = contactService;
             Contact = new Contact();
@@ -40,21 +39,25 @@ namespace ContactsApp.ViewModels
         {
             if (ValidateContact())
             {
-                if (Contact.Id == 0)
+                if (_contactService.IsContactUnique(Contact))
                 {
-                    _contactService.AddContact(Contact);
+                    if (Contact.Id == 0)
+                    {
+                        _contactService.AddContact(Contact);
+                    }
+                    else
+                    {
+                        _contactService.UpdateContact(Contact);
+                    }
+                    MessageBox.Show("Saved successfully.", "Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CloseWindow(true);
                 }
                 else
-                {
-                    _contactService.UpdateContact(Contact);
-                }
-                MessageBox.Show("Saved successfully.", "Save", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow(true);
+                    MessageBox.Show("Same contact already exist", "Already Exist Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+
             }
             else
-            {
-                MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+                MessageBox.Show("Please enter valid data.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void Cancel()
@@ -75,7 +78,7 @@ namespace ContactsApp.ViewModels
             return !string.IsNullOrWhiteSpace(Contact.FirstName) &&
                    !string.IsNullOrWhiteSpace(Contact.LastName) &&
                    !string.IsNullOrWhiteSpace(Contact.PhoneNumber) &&
-                   !Regex.IsMatch(Contact.PhoneNumber, @"^\d{10}$") &&
+                   _contactService.IsPhoneNumberValid(_contact.PhoneNumber) &&
                    !string.IsNullOrWhiteSpace(Contact.Address);
         }
 
