@@ -4,7 +4,8 @@
         xmlns:local="clr-namespace:ContactsApp.Views"
         xmlns:vm="clr-namespace:ContactsApp.ViewModels"
         xmlns:conv="clr-namespace:ContactsApp.Converters"
-        Title="Записная книжка" Height="350" Width="525">
+        Title="Записная книжка" Height="350" Width="525"
+        Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
         <conv:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
     </Window.Resources>
@@ -14,7 +15,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ListView Grid.Row="0" ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}">
+        <ListView Grid.Row="0" ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}"
+                  BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Margin="10">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="First Name" DisplayMemberBinding="{Binding FirstName}" />
@@ -25,10 +27,10 @@
             </ListView.View>
         </ListView>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
             <Button Width="100" Height="30" Content="Добавить контакт" Command="{Binding AddContactCommand}" Margin="5"/>
             <Button Width="100" Height="30" Content="Удалить контакт" Command="{Binding DeleteContactCommand}" Margin="5" 
-            IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
+                    IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
             <Button Width="100" Height="30" Content="Изменить контакт" Command="{Binding EditContactCommand}" Margin="5" 
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
         </StackPanel>
