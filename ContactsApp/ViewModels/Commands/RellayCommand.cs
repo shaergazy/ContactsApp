@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace ContactsApp.Commands
+namespace ContactsApp.ViewModels.Commands
 {
     public class RelayCommand : ICommand
     {

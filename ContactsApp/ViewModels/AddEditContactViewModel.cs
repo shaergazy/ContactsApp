@@ -1,6 +1,6 @@
-﻿using ContactsApp.Commands;
-using ContactsApp.Models;
+﻿using ContactsApp.Models;
 using ContactsApp.Services;
+using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using System.ComponentModel;
 using System.Windows;
