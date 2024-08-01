@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:ContactsApp.Views"
         xmlns:vm="clr-namespace:ContactsApp.ViewModels"
         xmlns:conv="clr-namespace:ContactsApp.Converters"
-        Title="Записная книжка" Height="350" Width="525"
+        Title="Adress book" Height="350" Width="525"
         Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
         <conv:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
@@ -28,10 +28,10 @@
         </ListView>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-            <Button Width="100" Height="30" Content="Добавить контакт" Command="{Binding AddContactCommand}" Margin="5"/>
-            <Button Width="100" Height="30" Content="Удалить контакт" Command="{Binding DeleteContactCommand}" Margin="5" 
+            <Button Width="120" Height="30" Content="Add" Command="{Binding AddContactCommand}" Margin="5"/>
+            <Button Width="120" Height="30" Content="Change" Command="{Binding EditContactCommand}" Margin="5" 
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
-            <Button Width="100" Height="30" Content="Изменить контакт" Command="{Binding EditContactCommand}" Margin="5" 
+            <Button Width="120" Height="30" Content="Delete" Command="{Binding DeleteContactCommand}" Margin="5" 
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
         </StackPanel>
     </Grid>
