@@ -1,4 +1,5 @@
 ﻿using ContactsApp.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace ContactsApp.Services
@@ -14,7 +15,7 @@ namespace ContactsApp.Services
 
         public IEnumerable<Contact> GetAllContacts()
         {
-            return _context.Contacts.ToList();
+            return _context.Contacts.Include(x => x.Address).ToList();
         }
 
         public Contact GetContactById(int id)

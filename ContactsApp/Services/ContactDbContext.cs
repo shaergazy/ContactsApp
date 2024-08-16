@@ -10,5 +10,7 @@ namespace ContactsApp.Services
         {
         }
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<AddressModel> Addresses { get; set; }
+        public DbSet<ShipmentModel> Shipments { get; set; }
     }
 }

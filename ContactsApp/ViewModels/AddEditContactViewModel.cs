@@ -2,6 +2,10 @@
 using ContactsApp.Services;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
+using EasyPost;
+using EasyPost.Models.API;
+using EasyPost.Parameters;
+using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -29,15 +33,15 @@ namespace ContactsApp.ViewModels
         public AddEditContactViewModel(IContactService contactService)
         {
             _contactService = contactService;
-            Contact = new Contact();
+            Contact = new Contact { Address = new Models.AddressModel() };
 
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
         }
 
-        private void Save()
+        private async void Save()
         {
-            if (ValidateContact())
+            if (await ValidateContact())
             {
                 if (_contactService.IsContactUnique(Contact))
                 {
@@ -53,8 +57,7 @@ namespace ContactsApp.ViewModels
                     CloseWindow(true);
                 }
                 else
-                    MessageBox.Show("Same contact already exist", "Already Exist Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-
+                    MessageBox.Show("Same contact already exists.", "Already Exist Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else
                 MessageBox.Show("Please enter valid data.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -73,13 +76,36 @@ namespace ContactsApp.ViewModels
             }
         }
 
-        private bool ValidateContact()
+        private async Task<bool> ValidateContact()
         {
             return !string.IsNullOrWhiteSpace(Contact.FirstName) &&
                    !string.IsNullOrWhiteSpace(Contact.LastName) &&
                    !string.IsNullOrWhiteSpace(Contact.PhoneNumber) &&
                    _contactService.IsPhoneNumberValid(_contact.PhoneNumber) &&
-                   !string.IsNullOrWhiteSpace(Contact.Address);
+                   await ValidateAddress(Contact.Address);
+        }
+
+        private async Task<bool> ValidateAddress(Models.AddressModel address)
+        {
+            var client = new EasyPost.Client(new EasyPost.ClientConfiguration("EASYPOST_API_KEY"));
+
+            EasyPost.Parameters.Address.Create parameters = new()
+            {
+                Street1 = address.Street,
+                City = address.City,
+                State = address.State,
+                Zip = address.Zip,
+                Country = address.Country,
+            };
+
+            EasyPost.Models.API.Address verifiedAddress = await client.Address.CreateAndVerify(parameters);
+
+            Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
+            return address != null &&
+                   !string.IsNullOrWhiteSpace(address.Street) &&
+                   !string.IsNullOrWhiteSpace(address.City) &&
+                   !string.IsNullOrWhiteSpace(address.State) &&
+                   !string.IsNullOrWhiteSpace(address.Zip);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

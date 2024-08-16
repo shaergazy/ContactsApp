@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:ContactsApp.Views"
         xmlns:vm="clr-namespace:ContactsApp.ViewModels"
         xmlns:conv="clr-namespace:ContactsApp.Converters"
-        Title="Adress book" Height="350" Width="525"
+        Title="Address Book" Height="400" Width="600"
         Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
         <conv:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
@@ -22,7 +22,11 @@
                     <GridViewColumn Header="First Name" DisplayMemberBinding="{Binding FirstName}" />
                     <GridViewColumn Header="Last Name" DisplayMemberBinding="{Binding LastName}" />
                     <GridViewColumn Header="Phone Number" DisplayMemberBinding="{Binding PhoneNumber}" />
-                    <GridViewColumn Header="Address" DisplayMemberBinding="{Binding Address}" />
+                    <GridViewColumn Header="Street" DisplayMemberBinding="{Binding Address.Street}" />
+                    <GridViewColumn Header="City" DisplayMemberBinding="{Binding Address.City}" />
+                    <GridViewColumn Header="State" DisplayMemberBinding="{Binding Address.State}" />
+                    <GridViewColumn Header="Zip" DisplayMemberBinding="{Binding Address.Zip}" />
+                    <GridViewColumn Header="Country" DisplayMemberBinding="{Binding Address.Country}" />
                 </GridView>
             </ListView.View>
         </ListView>

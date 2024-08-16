@@ -1,10 +1,14 @@
 ﻿<Window x:Class="ContactsApp.Views.AddEditContactWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add/Edit Contact" Height="350" Width="400"
+        Title="Add/Edit Contact" Height="400" Width="400"
         Background="{StaticResource BackgroundBrush}">
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -25,10 +29,22 @@
         <Label Grid.Row="2" Grid.Column="0" Content="Phone Number:" VerticalAlignment="Center" Margin="5"/>
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Contact.PhoneNumber, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <Label Grid.Row="3" Grid.Column="0" Content="Address:" VerticalAlignment="Center" Margin="5"/>
-        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Contact.Address, UpdateSourceTrigger=PropertyChanged}"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="Street:" VerticalAlignment="Center" Margin="5"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Contact.Address.Street, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+        <Label Grid.Row="4" Grid.Column="0" Content="City:" VerticalAlignment="Center" Margin="5"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Contact.Address.City, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <Label Grid.Row="5" Grid.Column="0" Content="State:" VerticalAlignment="Center" Margin="5"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Contact.Address.State, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <Label Grid.Row="6" Grid.Column="0" Content="Zip:" VerticalAlignment="Center" Margin="5"/>
+        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding Contact.Address.Zip, UpdateSourceTrigger=PropertyChanged}"/>
+        
+        <Label Grid.Row="7" Grid.Column="0" Content="Country:" VerticalAlignment="Center" Margin="5"/>
+        <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding Contact.Address.Country, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
             <Button Content="Save" Command="{Binding SaveCommand}" Width="75"/>
             <Button Content="Cancel" Command="{Binding CancelCommand}" Width="75"/>
         </StackPanel>

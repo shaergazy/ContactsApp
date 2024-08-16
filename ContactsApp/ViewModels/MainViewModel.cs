@@ -4,6 +4,8 @@ using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -26,6 +28,7 @@ namespace ContactsApp.ViewModels
                 _selectedContact = value;
                 OnPropertyChanged(nameof(SelectedContact));
                 ((RelayCommand)EditContactCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)DeleteContactCommand).RaiseCanExecuteChanged();
             }
         }
 
@@ -35,7 +38,7 @@ namespace ContactsApp.ViewModels
             Contacts = new ObservableCollection<Contact>();
             AddContactCommand = new RelayCommand(async () => await OpenAddContactWindow());
             EditContactCommand = new RelayCommand(async () => await OpenEditContactWindow(), CanEditContact);
-            DeleteContactCommand = new RelayCommand(async () => await ConfirmDeleteContact());
+            DeleteContactCommand = new RelayCommand(async () => await ConfirmDeleteContact(), CanEditContact);
             LoadContacts();
         }
 
@@ -93,7 +96,15 @@ namespace ContactsApp.ViewModels
                     FirstName = SelectedContact.FirstName,
                     LastName = SelectedContact.LastName,
                     PhoneNumber = SelectedContact.PhoneNumber,
-                    Address = SelectedContact.Address
+                    Address = new AddressModel
+                    {
+                        Id = SelectedContact.Address.Id,
+                        Street = SelectedContact.Address.Street,
+                        City = SelectedContact.Address.City,
+                        State = SelectedContact.Address.State,
+                        Zip = SelectedContact.Address.Zip,
+                        Country = SelectedContact.Address.Country,
+                    }
                 }
             };
 
@@ -104,7 +115,11 @@ namespace ContactsApp.ViewModels
                 SelectedContact.FirstName = viewModel.Contact.FirstName;
                 SelectedContact.LastName = viewModel.Contact.LastName;
                 SelectedContact.PhoneNumber = viewModel.Contact.PhoneNumber;
-                SelectedContact.Address = viewModel.Contact.Address;
+                SelectedContact.Address.Street = viewModel.Contact.Address.Street;
+                SelectedContact.Address.City = viewModel.Contact.Address.City;
+                SelectedContact.Address.State = viewModel.Contact.Address.State;
+                SelectedContact.Address.Zip = viewModel.Contact.Address.Zip;
+                SelectedContact.Address.Country = viewModel.Contact.Address.Country;
 
                 await Task.Run(() => _contactService.UpdateContact(SelectedContact));
 

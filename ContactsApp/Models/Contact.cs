@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-
-namespace ContactsApp.Models
+﻿namespace ContactsApp.Models
 {
     public class Contact
     {
@@ -15,6 +6,7 @@ namespace ContactsApp.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
-        public string Address { get; set; }
+        public int? AdressId { get; set; }
+        public AddressModel? Address { get; set; }
     }
 }
