@@ -6,7 +6,5 @@
         public double Length { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        public string Carrier { get; set; }
-        public string Service { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using ContactsApp.Services;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
+using Microsoft.Extensions.Options;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -9,14 +10,17 @@ using System.Windows.Input;
 
 namespace ContactsApp.ViewModels
 {
-    public class WindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
-        private readonly ContactService _contactService;
+        private readonly IContactService _contactService;
+        private readonly IShipmentService _shipmentService;
+        private readonly IAddressService _addressService;
 
         public ObservableCollection<Contact> Contacts { get; set; }
         public ICommand AddContactCommand { get; set; }
         public ICommand EditContactCommand { get; set; }
         public ICommand DeleteContactCommand { get; set; }
+        public ICommand CreateShipmentCommand { get; set; }
         private Contact _selectedContact;
         public Contact SelectedContact
         {
@@ -30,14 +34,17 @@ namespace ContactsApp.ViewModels
             }
         }
 
-        public MainWindowViewModel(ContactService contactService)
+        public MainWindowViewModel(IContactService contactService, IShipmentService shipmentService, IAddressService addressService)
         {
             _contactService = contactService;
+            _shipmentService = shipmentService;
             Contacts = new ObservableCollection<Contact>();
             AddContactCommand = new RelayCommand(async () => await OpenAddContactWindow());
+            CreateShipmentCommand = new RelayCommand(async () => await OpenShipmentWindow());
             EditContactCommand = new RelayCommand(async () => await OpenEditContactWindow(), CanEditContact);
             DeleteContactCommand = new RelayCommand(async () => await ConfirmDeleteContact(), CanEditContact);
             LoadContacts();
+            _addressService = addressService;   
         }
 
         private void LoadContacts()
@@ -72,7 +79,7 @@ namespace ContactsApp.ViewModels
         private async Task OpenAddContactWindow()
         {
             var addContactWindow = new AddEditContactWindow();
-            var viewModel = new AddEditContactViewModel(_contactService);
+            var viewModel = new AddEditContactViewModel(_contactService, "EZTK3d5abae2f8924511b83857f21407e65f8N1bjRd0s3DVhdhO6kq3Ug");
             addContactWindow.DataContext = viewModel;
 
             if (addContactWindow.ShowDialog() == true)
@@ -81,12 +88,20 @@ namespace ContactsApp.ViewModels
             }
         }
 
+        private async Task OpenShipmentWindow()
+        {
+            var shipmentWindow = new ShipmentWindow();
+            var viewModel = new ShipmentViewModel(_shipmentService, _addressService);
+            shipmentWindow.DataContext = viewModel;
+            shipmentWindow.ShowDialog();
+        }
+
         private async Task OpenEditContactWindow()
         {
             if (SelectedContact == null) return;
 
             var editContactWindow = new AddEditContactWindow();
-            var viewModel = new AddEditContactViewModel(_contactService)
+            var viewModel = new AddEditContactViewModel(_contactService, "EZTK3d5abae2f8924511b83857f21407e65f8N1bjRd0s3DVhdhO6kq3Ug")
             {
                 Contact = new Contact
                 {

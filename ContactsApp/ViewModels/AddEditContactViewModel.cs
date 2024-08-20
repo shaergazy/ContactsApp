@@ -3,6 +3,8 @@ using ContactsApp.Services;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using EasyPost;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -13,7 +15,7 @@ namespace ContactsApp.ViewModels
     {
         private readonly IContactService _contactService;
         private Contact _contact;
-        private readonly Client client;
+        private readonly Client _client;
 
         public Contact Contact
         {
@@ -28,10 +30,11 @@ namespace ContactsApp.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public AddEditContactViewModel(IContactService contactService)
+        public AddEditContactViewModel(IContactService contactService, string apiKey)
         {
             _contactService = contactService;
             Contact = new Contact { Address = new Models.AddressModel() };
+            _client = new Client(new ClientConfiguration(apiKey));
 
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
@@ -85,20 +88,20 @@ namespace ContactsApp.ViewModels
 
         private async Task<bool> ValidateAddress(Models.AddressModel address)
         {
-            //var client = new EasyPost.Client(new EasyPost.ClientConfiguration("EASYPOST_API_KEY"));
 
-            //EasyPost.Parameters.Address.Create parameters = new()
-            //{
-            //    Street1 = address.Street,
-            //    City = address.City,
-            //    State = address.State,
-            //    Zip = address.Zip,
-            //    Country = address.Country,
-            //};
+            EasyPost.Parameters.Address.Create parameters = new()
+            {
+                Street1 = address.Street,
+                City = address.City,
+                State = address.State,
+                Zip = address.Zip,
+                Country = address.Country,
+            };
 
-            //EasyPost.Models.API.Address verifiedAddress = await client.Address.CreateAndVerify(parameters);
+            EasyPost.Models.API.Address verifiedAddress = await _client.Address.CreateAndVerify(parameters);
+            Contact.Address.AddressId = verifiedAddress.Id;
 
-            //Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
+            Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
             return address != null &&
                    !string.IsNullOrWhiteSpace(address.Street) &&
                    !string.IsNullOrWhiteSpace(address.City) &&

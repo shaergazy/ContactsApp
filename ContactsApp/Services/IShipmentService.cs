@@ -5,6 +5,6 @@ namespace ContactsApp.Services
 {
     public interface IShipmentService
     {
-        Task CreateShipmentLabel(ParcelDto dto, AddressModel address, AddressModel fromAddress);
+        Task<string> CreateShipmentLabel(ParcelDto dto, string carrier, string service, AddressModel address, AddressModel fromAddress);
     }
 }

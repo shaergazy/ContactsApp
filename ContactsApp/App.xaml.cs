@@ -36,9 +36,13 @@ namespace ContactsApp
                 {
                     var cs = _configuration.GetConnectionString("Default");
                     services.AddDbContext<ContactsDbContext>(x => x.UseSqlServer(_configuration.GetConnectionString("Default")));
-                    services.AddScoped<ContactService>();
+                    services.AddScoped<IContactService, ContactService>();
                     services.AddScoped<MainWindowViewModel>();
                     services.AddTransient<MainWindow>();
+                    services.AddScoped<IShipmentService, ShipmentService>();
+                    services.AddScoped<IAddressService, AddressService>();
+                    services.AddScoped<ShipmentViewModel>();
+                    services.AddTransient<ShipmentWindow>();
                     services.Configure<EasyPostSettings>(_configuration.GetSection("EasyPost"));
                 })
                 .Build();

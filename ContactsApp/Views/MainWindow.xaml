@@ -37,6 +37,7 @@
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
             <Button Width="120" Height="30" Content="Delete" Command="{Binding DeleteContactCommand}" Margin="5" 
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
+            <Button Width="120" Height="30" Content="Create Shipment" Command="{Binding CreateShipmentCommand}" Margin="5" />
         </StackPanel>
     </Grid>
 </Window>
