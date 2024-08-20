@@ -3,9 +3,6 @@ using ContactsApp.Services;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using EasyPost;
-using EasyPost.Models.API;
-using EasyPost.Parameters;
-using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -16,6 +13,7 @@ namespace ContactsApp.ViewModels
     {
         private readonly IContactService _contactService;
         private Contact _contact;
+        private readonly Client client;
 
         public Contact Contact
         {
@@ -87,20 +85,20 @@ namespace ContactsApp.ViewModels
 
         private async Task<bool> ValidateAddress(Models.AddressModel address)
         {
-            var client = new EasyPost.Client(new EasyPost.ClientConfiguration("EASYPOST_API_KEY"));
+            //var client = new EasyPost.Client(new EasyPost.ClientConfiguration("EASYPOST_API_KEY"));
 
-            EasyPost.Parameters.Address.Create parameters = new()
-            {
-                Street1 = address.Street,
-                City = address.City,
-                State = address.State,
-                Zip = address.Zip,
-                Country = address.Country,
-            };
+            //EasyPost.Parameters.Address.Create parameters = new()
+            //{
+            //    Street1 = address.Street,
+            //    City = address.City,
+            //    State = address.State,
+            //    Zip = address.Zip,
+            //    Country = address.Country,
+            //};
 
-            EasyPost.Models.API.Address verifiedAddress = await client.Address.CreateAndVerify(parameters);
+            //EasyPost.Models.API.Address verifiedAddress = await client.Address.CreateAndVerify(parameters);
 
-            Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
+            //Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
             return address != null &&
                    !string.IsNullOrWhiteSpace(address.Street) &&
                    !string.IsNullOrWhiteSpace(address.City) &&

@@ -1,76 +1,59 @@
 ﻿using ContactsApp.Models;
+using ContactsApp.Services.DTOs;
 using EasyPost;
 using EasyPost.Models.API;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace ContactsApp.Services
 {
     public class ShipmentService : IShipmentService
     {
-        private readonly string _apiKey;
+        private readonly Client _client;
 
-        public ShipmentService(string apiKey)
+        public ShipmentService(IOptions<EasyPostSettings> settings)
         {
-            _apiKey = apiKey;
-            ClientManager.SetCurrent(_apiKey);
+            var apiKey = settings.Value.ApiKey;
+            _client = new Client(new ClientConfiguration(apiKey));
         }
 
-        public async Task<bool> CreateShipmentLabel(double weight, double length, double width, double height, string carrier, string service, AddressModel address)
+        public async Task CreateShipmentLabel(ParcelDto dto, AddressModel toAddress, AddressModel fromAddress)
         {
             try
             {
-                var fromAddress = new EasyPost.Address()
+                var parameters = new EasyPost.Parameters.Shipment.Create
                 {
-                    Street1 = "YOUR_SENDER_STREET",
-                    City = "YOUR_SENDER_CITY",
-                    State = "YOUR_SENDER_STATE",
-                    Zip = "YOUR_SENDER_ZIP",
-                    Country = "YOUR_SENDER_COUNTRY"
+                    ToAddress = new EasyPost.Parameters.Address.Create
+                    {
+                        Street1 = toAddress.Street,
+                        City = toAddress.City,
+                        State = toAddress.State,
+                        Country = toAddress.Country,
+                        Zip = toAddress.Zip,
+                    },
+                    FromAddress = new EasyPost.Parameters.Address.Create
+                    {
+                        Street1 = fromAddress.Street,
+                        City = fromAddress.City,
+                        State = fromAddress.State,
+                        Country = fromAddress.Country,
+                        Zip = fromAddress.Zip,
+                    },
+                    Parcel = new EasyPost.Parameters.Parcel.Create
+                    {
+                        Length = dto.Length,
+                        Width = dto.Width,
+                        Height = dto.Height,
+                        Weight = dto.Weight,
+                    },
                 };
 
-                var toAddress = new EasyPost.Address()
-                {
-                    Street1 = address.Street,
-                    City = address.City,
-                    State = address.State,
-                    Zip = address.Zip,
-                    Country = "US"
-                };
+                Shipment shipment = await _client.Shipment.Create(parameters);
 
-                var parcel = new Parcel()
-                {
-                    Weight = weight,
-                    Length = length,
-                    Width = width,
-                    Height = height
-                };
-
-                var shipment = new Shipment()
-                {
-                    ToAddress = toAddress,
-                    FromAddress = fromAddress,
-                    Parcel = parcel
-                };
-
-                await shipment.Create();
-
-                // Filter by carrier and service
-                var rate = shipment.Rates.Find(r => r.Carrier == carrier && r.Service == service);
-                if (rate == null)
-                    return false;
-
-                shipment.Buy(rate);
-
-                // Save the shipment details or label URL if needed
-                var labelUrl = shipment.PostageLabel.LabelUrl;
-
-                // Here you would save the shipment details to your database
-                return true;
+                Console.WriteLine(JsonConvert.SerializeObject(shipment, Formatting.Indented));
             }
             catch
             {
-                // Handle exceptions (e.g., log error)
-                return false;
             }
         }
     }

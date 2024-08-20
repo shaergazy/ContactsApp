@@ -1,9 +1,10 @@
 ﻿using ContactsApp.Models;
+using ContactsApp.Services.DTOs;
 
 namespace ContactsApp.Services
 {
     public interface IShipmentService
     {
-        Task<bool> CreateShipmentLabel(double weight, double length, double width, double height, string carrier, string service, AddressModel address);
+        Task CreateShipmentLabel(ParcelDto dto, AddressModel address, AddressModel fromAddress);
     }
 }

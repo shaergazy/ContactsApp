@@ -4,14 +4,12 @@ using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 namespace ContactsApp.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class WindowViewModel : INotifyPropertyChanged
     {
         private readonly ContactService _contactService;
 

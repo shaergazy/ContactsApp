@@ -43,18 +43,18 @@ namespace ContactsApp.ViewModels
 
         private async Task CreateLabel()
         {
-            // Assume there is a method to create shipment label
-            var success = await _shipmentService.CreateShipmentLabel(PackageWeight, PackageLength, PackageWidth, PackageHeight, SelectedCarrier, SelectedService, SelectedAddress);
+            //// Assume there is a method to create shipment label
+            //var success = await _shipmentService.CreateShipmentLabel(PackageWeight, PackageLength, PackageWidth, PackageHeight, SelectedCarrier, SelectedService, SelectedAddress);
 
-            if (success)
-            {
-                MessageBox.Show("Label created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow(true);
-            }
-            else
-            {
-                MessageBox.Show("Failed to create label.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            //if (success)
+            //{
+            //    MessageBox.Show("Label created successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    CloseWindow(true);
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Failed to create label.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //}
         }
 
         private void Cancel()
