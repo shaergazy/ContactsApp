@@ -1,4 +1,5 @@
 ﻿using ContactsApp.Services;
+using ContactsApp.Services.Interfaces;
 using ContactsApp.ViewModels;
 using ContactsApp.Views;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,7 @@ namespace ContactsApp
                     services.AddScoped<IContactService, ContactService>();
                     services.AddScoped<MainWindowViewModel>();
                     services.AddTransient<MainWindow>();
-                    services.AddScoped<IShipmentService, ShipmentService>();
+                    services.AddScoped<IEasyPostService, EasyPostService>();
                     services.AddScoped<IAddressService, AddressService>();
                     services.AddScoped<ShipmentViewModel>();
                     services.AddTransient<ShipmentWindow>();

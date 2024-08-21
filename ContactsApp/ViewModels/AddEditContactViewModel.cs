@@ -1,9 +1,7 @@
 ﻿using ContactsApp.Models;
-using ContactsApp.Services;
+using ContactsApp.Services.Interfaces;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
-using EasyPost;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Windows;
@@ -14,8 +12,8 @@ namespace ContactsApp.ViewModels
     public class AddEditContactViewModel : INotifyPropertyChanged
     {
         private readonly IContactService _contactService;
+        private readonly IEasyPostService _easyPostService;
         private Contact _contact;
-        private readonly Client _client;
 
         public Contact Contact
         {
@@ -30,11 +28,11 @@ namespace ContactsApp.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public AddEditContactViewModel(IContactService contactService, string apiKey)
+        public AddEditContactViewModel(IContactService contactService, IEasyPostService easyPostService)
         {
             _contactService = contactService;
             Contact = new Contact { Address = new Models.AddressModel() };
-            _client = new Client(new ClientConfiguration(apiKey));
+            _easyPostService = easyPostService;
 
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
@@ -44,15 +42,15 @@ namespace ContactsApp.ViewModels
         {
             if (await ValidateContact())
             {
-                if (_contactService.IsContactUnique(Contact))
+                if (_contactService.IsUnique(Contact))
                 {
                     if (Contact.Id == 0)
                     {
-                        _contactService.AddContact(Contact);
+                        await _contactService.AddAsync(Contact);
                     }
                     else
                     {
-                        _contactService.UpdateContact(Contact);
+                        _contactService.Update(Contact);
                     }
                     MessageBox.Show("Saved successfully.", "Save", MessageBoxButton.OK, MessageBoxImage.Information);
                     CloseWindow(true);
@@ -86,27 +84,26 @@ namespace ContactsApp.ViewModels
                    await ValidateAddress(Contact.Address);
         }
 
-        private async Task<bool> ValidateAddress(Models.AddressModel address)
+        private async Task<bool> ValidateAddress(Models.AddressModel addressModel)
         {
-
-            EasyPost.Parameters.Address.Create parameters = new()
+            try
             {
-                Street1 = address.Street,
-                City = address.City,
-                State = address.State,
-                Zip = address.Zip,
-                Country = address.Country,
-            };
+                var address = await _easyPostService.CreateAndVerifyAddress(addressModel);
+                Contact.Address.AddressId = address.Id;
 
-            EasyPost.Models.API.Address verifiedAddress = await _client.Address.CreateAndVerify(parameters);
-            Contact.Address.AddressId = verifiedAddress.Id;
-
-            Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
-            return address != null &&
-                   !string.IsNullOrWhiteSpace(address.Street) &&
-                   !string.IsNullOrWhiteSpace(address.City) &&
-                   !string.IsNullOrWhiteSpace(address.State) &&
-                   !string.IsNullOrWhiteSpace(address.Zip);
+                Console.WriteLine(JsonConvert.SerializeObject(address, Formatting.Indented));
+                return address != null &&
+                       !string.IsNullOrWhiteSpace(addressModel.Street) &&
+                       !string.IsNullOrWhiteSpace(addressModel.City) &&
+                       !string.IsNullOrWhiteSpace(addressModel.State) &&
+                       !string.IsNullOrWhiteSpace(addressModel.Zip);
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+           
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -1,4 +1,5 @@
-﻿using ContactsApp.ViewModels;
+﻿using ContactsApp.Services.Interfaces;
+using ContactsApp.ViewModels;
 using ContactsApp.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

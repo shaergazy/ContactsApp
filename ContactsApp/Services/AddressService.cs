@@ -1,21 +1,21 @@
 ﻿using ContactsApp.Models;
-using Microsoft.EntityFrameworkCore;
+using ContactsApp.Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace ContactsApp.Services
 {
-    public class AddressService : IAddressService
+    public class AddressService : GenericService<AddressModel, int>, IAddressService
     {
         private readonly ContactsDbContext _dbContext;
 
-        public AddressService(ContactsDbContext dbContext)
+        public AddressService(ContactsDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<ObservableCollection<AddressModel>> GetAllAddressesAsync()
+        public async Task<ObservableCollection<AddressModel>> GetAll()
         {
-            var addresses = await _dbContext.Addresses.ToListAsync();
+            var addresses = _dbContext.Addresses.ToList();
             return new ObservableCollection<AddressModel>(addresses);
         }
     }

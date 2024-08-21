@@ -1,6 +1,6 @@
 ﻿using ContactsApp.Models;
-using ContactsApp.Services;
 using ContactsApp.Services.DTOs;
+using ContactsApp.Services.Interfaces;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using System.Collections.ObjectModel;
@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 public class ShipmentViewModel : INotifyPropertyChanged
 {
-    private readonly IShipmentService _shipmentService;
+    private readonly IEasyPostService _easyPostService;
     private readonly IAddressService _addressService;
 
     public ParcelDto Parcel { get; set; }
@@ -68,12 +68,11 @@ public class ShipmentViewModel : INotifyPropertyChanged
     public ICommand CreateLabelCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public ShipmentViewModel(IShipmentService shipmentService, IAddressService addressService)
+    public ShipmentViewModel(IEasyPostService shipmentService, IAddressService addressService)
     {
-        _shipmentService = shipmentService;
+        _easyPostService = shipmentService;
         _addressService = addressService;
 
-        // Инициализация коллекций
         Addresses = new ObservableCollection<AddressModel>();
         FromAddresses = new ObservableCollection<AddressModel>();
 
@@ -84,7 +83,6 @@ public class ShipmentViewModel : INotifyPropertyChanged
         CreateLabelCommand = new RelayCommand(async () => await CreateLabel());
         CancelCommand = new RelayCommand(Cancel);
 
-        // Асинхронная загрузка данных
         _ = LoadAddresses();
     }
 
@@ -92,9 +90,8 @@ public class ShipmentViewModel : INotifyPropertyChanged
     {
         try
         {
-            var addresses = await _addressService.GetAllAddressesAsync();
+            var addresses = await _addressService.GetAll();
 
-            // Очистка и добавление новых элементов в коллекции
             Addresses.Clear();
             FromAddresses.Clear();
 
@@ -104,7 +101,6 @@ public class ShipmentViewModel : INotifyPropertyChanged
                 FromAddresses.Add(address);
             }
 
-            // Уведомление об изменении коллекций
             OnPropertyChanged(nameof(Addresses));
             OnPropertyChanged(nameof(FromAddresses));
         }
@@ -118,7 +114,7 @@ public class ShipmentViewModel : INotifyPropertyChanged
     {
         try
         {
-            var trackingNumber = await _shipmentService.CreateShipmentLabel(Parcel, SelectedCarrier, SelectedService, SelectedAddress, SelectedFromAddress);
+            var trackingNumber = await _easyPostService.CreateShipmentLabel(Parcel, SelectedCarrier, SelectedService, SelectedAddress, SelectedFromAddress);
             MessageBox.Show($"Label created successfully. Tracking Number: {trackingNumber}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             CloseWindow(true);
         }

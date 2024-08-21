@@ -1,0 +1,53 @@
+﻿<Window x:Class="ContactsApp.Views.TrackingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Track Package" Height="450" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Лейбл для трекинг кода -->
+        <Label Grid.Row="0" Grid.Column="0" Content="Tracking code:" VerticalAlignment="Center" Margin="5"/>
+
+        <!-- TextBox с поддержкой длинного текста -->
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TrackingCode, UpdateSourceTrigger=PropertyChanged}" Margin="5" AcceptsReturn="False" VerticalScrollBarVisibility="Auto"/>
+
+        <!-- Кнопка для получения информации -->
+        <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding GetTrackingInfoCommand}" Content="Отследить" Margin="5" Width="100" HorizontalAlignment="Left"/>
+
+        <!-- Полоса прокрутки для отображения всех деталей -->
+        <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Carrier:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Tracker.Carrier}"/>
+
+                <TextBlock Text="Tracking Code:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.TrackingCode}"/>
+
+                <TextBlock Text="Status:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.Status}"/>
+
+                <TextBlock Text="Status Detail:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.StatusDetail}"/>
+
+                <TextBlock Text="Created At:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.CreatedAt, StringFormat={}{0:G}}"/>
+
+                <TextBlock Text="Updated At:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.UpdatedAt, StringFormat={}{0:G}}"/>
+
+                <TextBlock Text="Public URL:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Tracker.PublicUrl}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand"
+           MouseLeftButtonDown="OpenUrl"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

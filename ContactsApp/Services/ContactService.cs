@@ -1,53 +1,32 @@
 ﻿using ContactsApp.Models;
+using ContactsApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace ContactsApp.Services
 {
-    public class ContactService : IContactService
+    public class ContactService : GenericService<Contact, int>, IContactService
     {
         private readonly ContactsDbContext _context;
 
-        public ContactService(ContactsDbContext context)
+        public ContactService(ContactsDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public IEnumerable<Contact> GetAllContacts()
+        public override IEnumerable<Contact> GetAll()
         {
-            return _context.Contacts.Include(x => x.Address).ToList();
+            return _context.Contacts.AsQueryable().Include(x => x.Address).ToList();
         }
 
-        public Contact GetContactById(int id)
+        public override async Task DeleteAsync(int id)
         {
-            var contact = _context.Contacts.Find(id);
-            return contact;
-        }
-
-        public void AddContact(Contact contact)
-        {
-            _context.Contacts.Add(contact);
+            var contact = await _context.Contacts.AsQueryable().Include(x => x.Address).FirstOrDefaultAsync(x => x.Id == id);
+            _context.Remove(contact);
             _context.SaveChanges();
         }
 
-        public void UpdateContact(Contact contact)
-        {
-            _context.ChangeTracker.Clear();
-            _context.Contacts.Update(contact);
-            _context.SaveChanges();
-        }
-
-        public void DeleteContact(int id)
-        {
-            var contact = GetContactById(id);
-            if (contact != null)
-            {
-                _context.Contacts.Remove(contact);
-                _context.SaveChanges();
-            }
-        }
-
-        public bool IsContactUnique(Contact contact)
+        public bool IsUnique(Contact contact)
         {
             return !_context.Contacts.Any(x => x.FirstName == contact.FirstName 
                                                    && x.LastName == contact.LastName
