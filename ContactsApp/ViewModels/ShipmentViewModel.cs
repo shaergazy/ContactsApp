@@ -1,6 +1,7 @@
 ﻿using ContactsApp.Models;
 using ContactsApp.Services.DTOs;
 using ContactsApp.Services.Interfaces;
+using ContactsApp.ViewModels;
 using ContactsApp.ViewModels.Commands;
 using ContactsApp.Views;
 using System.Collections.ObjectModel;
@@ -116,12 +117,24 @@ public class ShipmentViewModel : INotifyPropertyChanged
         {
             var trackingNumber = await _easyPostService.CreateShipmentLabel(Parcel, SelectedCarrier, SelectedService, SelectedAddress, SelectedFromAddress);
             MessageBox.Show($"Label created successfully. Tracking Number: {trackingNumber}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            OpenTrackingWindow(trackingNumber);
             CloseWindow(true);
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Не удалось создать лейбл: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private void OpenTrackingWindow(string trackingNumber)
+    {
+        var trackingWindow = new TrackingWindow(); // Предполагается, что у вас есть окно TrackingWindow
+        var trackingViewModel = new TrackingViewModel(_easyPostService)
+        {
+            TrackingCode = trackingNumber
+        };
+        trackingWindow.DataContext = trackingViewModel;
+        trackingWindow.Show();
     }
 
     private void Cancel()
