@@ -3,6 +3,7 @@ using ContactsApp.Services.Interfaces;
 using ContactsApp.ViewModels.Commands;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ContactsApp.ViewModels
@@ -34,9 +35,24 @@ namespace ContactsApp.ViewModels
 
         private async Task GetTrackingInfo()
         {
-            if (!string.IsNullOrWhiteSpace(TrackingCode))
+            try
             {
-                Tracker = await _easyPostService.GetTrackerDataAsync(TrackingCode);
+                if (!string.IsNullOrWhiteSpace(TrackingCode))
+                {
+                    Tracker = await _easyPostService.GetTrackerDataAsync(TrackingCode);
+                    if (Tracker == null)
+                    {
+                        MessageBox.Show("Tracking information not found. Please check the tracking number and try again.", "Tracking Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Tracking number cannot be empty. Please enter a valid tracking number.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while retrieving tracking information: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

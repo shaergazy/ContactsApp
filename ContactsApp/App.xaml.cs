@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Configuration;
 using System.IO;
 using System.Windows;
 
@@ -42,6 +41,7 @@ namespace ContactsApp
                     services.AddTransient<MainWindow>();
                     services.AddScoped<IEasyPostService, EasyPostService>();
                     services.AddScoped<IAddressService, AddressService>();
+                    services.AddScoped<IShipmentService, ShipmentService>();
                     services.AddScoped<ShipmentViewModel>();
                     services.AddTransient<ShipmentWindow>();
                     services.Configure<EasyPostSettings>(_configuration.GetSection("EasyPost"));

@@ -3,6 +3,7 @@ using ContactsApp.Services.DTOs;
 using ContactsApp.Services.Interfaces;
 using EasyPost;
 using EasyPost.Models.API;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ContactsApp.Services
@@ -10,14 +11,16 @@ namespace ContactsApp.Services
     public class EasyPostService : IEasyPostService
     {
         private readonly Client _client;
+        private readonly ILogger<EasyPostService> _logger;
 
-        public EasyPostService(IOptions<EasyPostSettings> settings)
+        public EasyPostService(IOptions<EasyPostSettings> settings, ILogger<EasyPostService> logger)
         {
             var apiKey = settings.Value.ApiKey;
             _client = new Client(new ClientConfiguration(apiKey));
+            _logger = logger;
         }
 
-        public async Task<string> CreateShipmentLabel(ParcelDto dto, string carrier, string service, AddressModel toAddressModel, AddressModel fromAddressModel)
+        public async Task<Shipment> CreateShipmentLabel(ParcelDto dto, string carrier, string service, AddressModel toAddressModel, AddressModel fromAddressModel)
         {
             try
             {
@@ -43,48 +46,66 @@ namespace ContactsApp.Services
 
                 shipment = await _client.Shipment.Buy(shipment.Id, buyParameters);
 
-                EasyPost.Parameters.Tracker.All trackerParameters = new()
-                {
-                    PageSize = 5
-                };
-
-                return shipment.TrackingCode;
+                return shipment;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при создании отправления: {ex.Message}");
+                _logger.LogError($"Error creating shipment: {ex.Message}", ex);
                 throw;
             }
         }
 
         public async Task<TrackerDto> GetTrackerDataAsync(string trackingCode)
         {
-            var tracker = await _client.Tracker.Retrieve(trackingCode);
-            if (tracker == null)
-                throw new Exception("Tracker does not exist");
-            var dto = new TrackerDto
+            if (string.IsNullOrWhiteSpace(trackingCode))
             {
-                Carrier = tracker.Carrier,
-                PublicUrl = tracker.PublicUrl,
-                TrackingCode = trackingCode,
-                Status = tracker.Status,
-                StatusDetail = tracker.StatusDetail,
-                CreatedAt = tracker.CreatedAt,
-                UpdatedAt = tracker.UpdatedAt,
-            };
-            return dto;
+                _logger.LogWarning("Tracking code is null or empty.");
+                throw new ArgumentException("Tracking code cannot be null or empty.", nameof(trackingCode));
+            }
+
+            try
+            {
+                var tracker = await _client.Tracker.Retrieve(trackingCode);
+                if (tracker == null)
+                    throw new Exception("Tracker does not exist");
+
+                var dto = new TrackerDto
+                {
+                    Carrier = tracker.Carrier,
+                    PublicUrl = tracker.PublicUrl,
+                    TrackingCode = trackingCode,
+                    Status = tracker.Status,
+                    StatusDetail = tracker.StatusDetail,
+                    CreatedAt = tracker.CreatedAt,
+                    UpdatedAt = tracker.UpdatedAt,
+                };
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error retrieving tracker data for code {trackingCode}: {ex.Message}", ex);
+                throw;
+            }
         }
 
         public async Task<Parcel> CreateParcel(ParcelDto dto)
         {
-            var parcel = new EasyPost.Parameters.Parcel.Create
+            try
             {
-                Length = dto.Length,
-                Width = dto.Width,
-                Height = dto.Height,
-                Weight = dto.Weight,
-            };
-            return await _client.Parcel.Create(parcel);
+                var parcel = new EasyPost.Parameters.Parcel.Create
+                {
+                    Length = dto.Length,
+                    Width = dto.Width,
+                    Height = dto.Height,
+                    Weight = dto.Weight,
+                };
+                return await _client.Parcel.Create(parcel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating parcel: {ex.Message}", ex);
+                throw;
+            }
         }
 
         public async Task<Address> CreateAndVerifyAddress(AddressModel address)
@@ -103,12 +124,11 @@ namespace ContactsApp.Services
                 Address verifiedAddress = await _client.Address.CreateAndVerify(parameters);
                 return verifiedAddress;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError($"Error verifying address: {ex.Message}", ex);
                 throw;
             }
         }
     }
 }
-

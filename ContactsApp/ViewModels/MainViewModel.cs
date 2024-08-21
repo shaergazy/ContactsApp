@@ -14,6 +14,7 @@ namespace ContactsApp.ViewModels
         private readonly IContactService _contactService;
         private readonly IEasyPostService _easyPostService;
         private readonly IAddressService _addressService;
+        private readonly IShipmentService _shipmentService;
 
         public ObservableCollection<Contact> Contacts { get; set; }
         public ICommand AddContactCommand { get; set; }
@@ -34,10 +35,12 @@ namespace ContactsApp.ViewModels
             }
         }
 
-        public MainWindowViewModel(IContactService contactService, IEasyPostService shipmentService, IAddressService addressService)
+        public MainWindowViewModel(IContactService contactService, IEasyPostService easyPostService, IAddressService addressService, IShipmentService shipmentService)
         {
             _contactService = contactService;
-            _easyPostService = shipmentService;
+            _easyPostService = easyPostService;
+            _addressService = addressService;
+            _shipmentService = shipmentService;
             Contacts = new ObservableCollection<Contact>();
             AddContactCommand = new RelayCommand(async () => await OpenAddContactWindow());
             CreateShipmentCommand = new RelayCommand(async () => await OpenShipmentWindow());
@@ -100,7 +103,7 @@ namespace ContactsApp.ViewModels
         private async Task OpenShipmentWindow()
         {
             var shipmentWindow = new ShipmentWindow();
-            var viewModel = new ShipmentViewModel(_easyPostService, _addressService);
+            var viewModel = new ShipmentViewModel(_easyPostService, _addressService, _shipmentService);
             shipmentWindow.DataContext = viewModel;
             shipmentWindow.ShowDialog();
         }

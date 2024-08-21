@@ -13,6 +13,7 @@ public class ShipmentViewModel : INotifyPropertyChanged
 {
     private readonly IEasyPostService _easyPostService;
     private readonly IAddressService _addressService;
+    private readonly IShipmentService _shipmentService;
 
     public ParcelDto Parcel { get; set; }
 
@@ -69,10 +70,11 @@ public class ShipmentViewModel : INotifyPropertyChanged
     public ICommand CreateLabelCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public ShipmentViewModel(IEasyPostService shipmentService, IAddressService addressService)
+    public ShipmentViewModel(IEasyPostService easyPostService, IAddressService addressService, IShipmentService shipmentService) 
     {
-        _easyPostService = shipmentService;
+        _easyPostService = easyPostService;
         _addressService = addressService;
+        _shipmentService = shipmentService;
 
         Addresses = new ObservableCollection<AddressModel>();
         FromAddresses = new ObservableCollection<AddressModel>();
@@ -115,9 +117,33 @@ public class ShipmentViewModel : INotifyPropertyChanged
     {
         try
         {
-            var trackingNumber = await _easyPostService.CreateShipmentLabel(Parcel, SelectedCarrier, SelectedService, SelectedAddress, SelectedFromAddress);
-            MessageBox.Show($"Label created successfully. Tracking Number: {trackingNumber}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            OpenTrackingWindow(trackingNumber);
+            var shipment = await _easyPostService.CreateShipmentLabel(Parcel, SelectedCarrier, SelectedService, SelectedAddress, SelectedFromAddress);
+
+            var parcel = shipment.Parcel;
+
+            var shipmentModel = new ShipmentModel
+            {
+                TrackingNumber = shipment.TrackingCode,
+                Carrier = SelectedCarrier,
+                Service = SelectedService,
+                ToAddress = shipment.ToAddress.Id,
+                FromAddress = shipment.FromAddress.Id,
+                ShipmentId = shipment.Id,
+                Parcel = new ParcelModel
+                {
+                    Height = parcel.Height,
+                    Weight = parcel.Weight,
+                    Length = parcel.Length,
+                    Width = parcel.Width,
+                    ParcelId = parcel.Id,
+                }
+            };
+
+            await _shipmentService.AddAsync(shipmentModel);
+
+            MessageBox.Show($"Label created successfully. Tracking Number: {shipment.TrackingCode}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            OpenTrackingWindow(shipment.TrackingCode);
             CloseWindow(true);
         }
         catch (Exception ex)
