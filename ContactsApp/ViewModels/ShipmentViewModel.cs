@@ -128,7 +128,7 @@ public class ShipmentViewModel : INotifyPropertyChanged
 
     private void OpenTrackingWindow(string trackingNumber)
     {
-        var trackingWindow = new TrackingWindow(); // Предполагается, что у вас есть окно TrackingWindow
+        var trackingWindow = new TrackingWindow();
         var trackingViewModel = new TrackingViewModel(_easyPostService)
         {
             TrackingCode = trackingNumber
