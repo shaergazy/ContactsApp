@@ -22,6 +22,7 @@ namespace ContactsApp.ViewModels
         public ICommand DeleteContactCommand { get; set; }
         public ICommand CreateShipmentCommand { get; set; }
         public ICommand TrackingShipmentCommand { get; set; }
+        public ICommand AllShipmentsCommand { get; set; }
         private Contact _selectedContact;
         public Contact SelectedContact
         {
@@ -47,6 +48,7 @@ namespace ContactsApp.ViewModels
             TrackingShipmentCommand = new RelayCommand(async () => await OpenTrackingWindow());
             EditContactCommand = new RelayCommand(async () => await OpenEditContactWindow(), CanEditContact);
             DeleteContactCommand = new RelayCommand(async () => await ConfirmDeleteContact(), CanEditContact);
+            AllShipmentsCommand = new RelayCommand(async () => await OpenAllShipmentsWindow());
             LoadContacts();
             _addressService = addressService;   
         }
@@ -98,6 +100,14 @@ namespace ContactsApp.ViewModels
             var viewModel = new TrackingViewModel(_easyPostService);
             trackingWindow.DataContext = viewModel;
             trackingWindow.ShowDialog();
+        }
+
+        private async Task OpenAllShipmentsWindow()
+        {
+            var window = new AllShipmentsWindow();
+            var viewModel = new AllShipmentsViewModel(_easyPostService);
+            window.DataContext = viewModel;
+            window.ShowDialog();
         }
 
         private async Task OpenShipmentWindow()

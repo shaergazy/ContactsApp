@@ -51,6 +51,14 @@ namespace ContactsApp.Services
             }
         }
 
+        public async Task<List<Shipment>> GetAllShipmentsAsync()
+        {
+            var shipments = await _client.Shipment.All();
+            if (shipments == null)
+                throw new Exception("shipments does not exist");
+            return shipments.Shipments;
+        }
+
         public async Task<Shipment> BuyShipment(string shipmentId, string rateId)
         {
             var shipment = await _client.Shipment.Retrieve(shipmentId);

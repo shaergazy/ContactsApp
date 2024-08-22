@@ -12,5 +12,6 @@ namespace ContactsApp.Services.Interfaces
         Task<IEnumerable<ServiceLevel>> GetServicesForCarrierAsync(string carrier);
         Task<Shipment> BuyShipment(string shipmentId, string rateId);
         Task<Shipment> GetShipmentById(string shipmentId);
+        Task<List<Shipment>> GetAllShipmentsAsync();
     }
 }

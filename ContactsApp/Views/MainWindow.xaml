@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:ContactsApp.Views"
         xmlns:vm="clr-namespace:ContactsApp.ViewModels"
         xmlns:conv="clr-namespace:ContactsApp.Converters"
-        Title="Address Book" Height="400" Width="600"
+        Title="Address Book" Height="400" Width="900"
         Background="{StaticResource BackgroundBrush}">
     <Window.Resources>
         <conv:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
@@ -39,6 +39,7 @@
                     IsEnabled="{Binding SelectedContact, Converter={StaticResource NullToBooleanConverter}}"/>
             <Button Width="120" Height="30" Content="Create Shipment" Command="{Binding CreateShipmentCommand}" Margin="5" />
             <Button Width="120" Height="30" Content="Tracking" Command="{Binding TrackingShipmentCommand}" Margin="5" />
+            <Button Width="120" Height="30" Content="All Shipments" Command="{Binding AllShipmentsCommand}" Margin="5" />
         </StackPanel>
     </Grid>
 </Window>
