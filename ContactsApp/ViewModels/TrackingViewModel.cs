@@ -15,6 +15,8 @@ namespace ContactsApp.ViewModels
 
         public string TrackingCode { get; set; }
 
+        public string PostageLabelUrl { get; set; }
+
         public TrackerDto Tracker
         {
             get => _tracker;

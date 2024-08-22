@@ -9,6 +9,7 @@
         public string ToAddress { get; set; } = "";
         public string Service { get; set; } = "";
         public string Carrier { get; set; } = "";
+        public string PostageLabelUrl { get; set; } = "";
         public int ParcelId { get; set; }
         public ParcelModel Parcel { get; set; }
     }

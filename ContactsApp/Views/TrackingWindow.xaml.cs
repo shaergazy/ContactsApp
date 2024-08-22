@@ -35,7 +35,7 @@ namespace ContactsApp.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Не удалось открыть ссылку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Could not open link: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

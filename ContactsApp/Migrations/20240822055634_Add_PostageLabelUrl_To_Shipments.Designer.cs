@@ -4,6 +4,7 @@ using ContactsApp.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ContactsApp.Migrations
 {
     [DbContext(typeof(ContactsDbContext))]
-    partial class ContactsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240822055634_Add_PostageLabelUrl_To_Shipments")]
+    partial class Add_PostageLabelUrl_To_Shipments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

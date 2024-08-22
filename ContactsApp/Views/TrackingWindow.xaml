@@ -14,16 +14,12 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Лейбл для трекинг кода -->
         <Label Grid.Row="0" Grid.Column="0" Content="Tracking code:" VerticalAlignment="Center" Margin="5"/>
 
-        <!-- TextBox с поддержкой длинного текста -->
         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TrackingCode, UpdateSourceTrigger=PropertyChanged}" Margin="5" AcceptsReturn="False" VerticalScrollBarVisibility="Auto"/>
 
-        <!-- Кнопка для получения информации -->
         <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Command="{Binding GetTrackingInfoCommand}" Content="Отследить" Margin="5" Width="100" HorizontalAlignment="Left"/>
 
-        <!-- Полоса прокрутки для отображения всех деталей -->
         <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <TextBlock Text="Carrier:" FontWeight="Bold"/>
@@ -46,6 +42,9 @@
 
                 <TextBlock Text="Public URL:" FontWeight="Bold" Margin="0,10,0,0"/>
                 <TextBlock Text="{Binding Tracker.PublicUrl}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand"
+           MouseLeftButtonDown="OpenUrl"/>
+                <TextBlock Text="Postage Label URL:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding PostageLabelUrl}" TextDecorations="Underline" Foreground="Blue" Cursor="Hand"
            MouseLeftButtonDown="OpenUrl"/>
             </StackPanel>
         </ScrollViewer>

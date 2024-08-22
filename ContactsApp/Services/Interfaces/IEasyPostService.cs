@@ -6,8 +6,11 @@ namespace ContactsApp.Services.Interfaces
 {
     public interface IEasyPostService
     {
-        Task<Shipment> CreateShipmentLabel(ParcelDto dto, string carrier, string service, AddressModel address, AddressModel fromAddress);
+        Task<Shipment> CreateShipment(ParcelDto dto, string carrier, string service, AddressModel address, AddressModel fromAddress);
         Task<TrackerDto> GetTrackerDataAsync(string trackingCode);
         Task<Address> CreateAndVerifyAddress(AddressModel address);
+        Task<IEnumerable<ServiceLevel>> GetServicesForCarrierAsync(string carrier);
+        Task<Shipment> BuyShipment(string shipmentId, string rateId);
+        Task<Shipment> GetShipmentById(string shipmentId);
     }
 }

@@ -20,7 +20,7 @@ namespace ContactsApp.Services
             _logger = logger;
         }
 
-        public async Task<Shipment> CreateShipmentLabel(ParcelDto dto, string carrier, string service, AddressModel toAddressModel, AddressModel fromAddressModel)
+        public async Task<Shipment> CreateShipment(ParcelDto dto, string carrier, string service, AddressModel toAddressModel, AddressModel fromAddressModel)
         {
             try
             {
@@ -40,11 +40,7 @@ namespace ContactsApp.Services
                     },
                 };
 
-                Shipment shipment = await _client.Shipment.Create(parameters);
-                Rate rate = shipment.LowestRate();
-                EasyPost.Parameters.Shipment.Buy buyParameters = new(rate);
-
-                shipment = await _client.Shipment.Buy(shipment.Id, buyParameters);
+                var shipment = await _client.Shipment.Create(parameters);
 
                 return shipment;
             }
@@ -53,6 +49,18 @@ namespace ContactsApp.Services
                 _logger.LogError($"Error creating shipment: {ex.Message}", ex);
                 throw;
             }
+        }
+
+        public async Task<Shipment> BuyShipment(string shipmentId, string rateId)
+        {
+            var shipment = await _client.Shipment.Retrieve(shipmentId);
+            if (shipment == null)
+                throw new Exception("shipment does not exist");
+            var rate = await _client.Rate.Retrieve(rateId);
+            if (rate == null)
+                throw new Exception("Rate does not exist");
+            shipment = await _client.Shipment.Buy(shipmentId, rate);
+            return shipment;
         }
 
         public async Task<TrackerDto> GetTrackerDataAsync(string trackingCode)
@@ -129,6 +137,31 @@ namespace ContactsApp.Services
                 _logger.LogError($"Error verifying address: {ex.Message}", ex);
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<ServiceLevel>> GetServicesForCarrierAsync(string carrier)
+        {
+            try
+            {
+                EasyPost.Parameters.CarrierMetadata.Retrieve parameters = new()
+                {
+                    Carriers = new List<string> { carrier},
+                    Types = new List<CarrierMetadataType> { CarrierMetadataType.ServiceLevels},
+                };
+
+                List<Carrier> carrierMetadata = await _client.CarrierMetadata.Retrieve(parameters);
+                return carrierMetadata.First().ServiceLevels;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting services for carrier {carrier}: {ex.Message}", ex);
+                throw;
+            }
+        }
+
+        public Task<Shipment> GetShipmentById(string shipmentId)
+        {
+            return _client.Shipment.Retrieve(shipmentId);
         }
     }
 }
