@@ -105,7 +105,7 @@ namespace ContactsApp.ViewModels
         private async Task OpenAllShipmentsWindow()
         {
             var window = new AllShipmentsWindow();
-            var viewModel = new AllShipmentsViewModel(_easyPostService);
+            var viewModel = new AllShipmentsViewModel(_easyPostService, _shipmentService);
             window.DataContext = viewModel;
             window.ShowDialog();
         }

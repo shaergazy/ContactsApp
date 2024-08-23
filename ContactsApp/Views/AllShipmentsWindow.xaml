@@ -3,37 +3,62 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:conv="clr-namespace:ContactsApp.Converters"
         xmlns:local="clr-namespace:ContactsApp.Views"
         mc:Ignorable="d"
-        Title="AllShipmentsWindow" Height="450" Width="800">
+        Title="AllShipmentsWindow" Height="600" Width="1420">
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:InvertedBoolToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
-        <!-- Define rows for the layout -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Row for the buttons -->
             <RowDefinition Height="*"/>
-            <!-- Row for the ListView -->
         </Grid.RowDefinitions>
 
-        <!-- StackPanel for buttons -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
             <Button Width="120" Height="30" Content="Export to PDF" Command="{Binding ExportToPdfCommand}" Margin="5"/>
             <Button Width="120" Height="30" Content="Export to CSV" Command="{Binding ExportToCsvCommand}" Margin="5"/>
         </StackPanel>
 
-        <!-- ListView for displaying shipments -->
-        <ListView Grid.Row="1" ItemsSource="{Binding Shipments}">
+        <ProgressBar Grid.Row="1" Height="25" Margin="10" IsIndeterminate="True" 
+                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Shipments}" Margin="10" 
+                  Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Shipment ID" DisplayMemberBinding="{Binding Id}" />
                     <GridViewColumn Header="Carrier" DisplayMemberBinding="{Binding SelectedRate.Carrier}" />
                     <GridViewColumn Header="Service" DisplayMemberBinding="{Binding SelectedRate.Service}" />
-                    <GridViewColumn Header="Price" DisplayMemberBinding="{Binding SelectedRate.Price}" />
+                    <GridViewColumn>
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Price" Command="{Binding SortByPriceCommand}" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.DisplayMemberBinding>
+                            <Binding Path="SelectedRate.Price" />
+                        </GridViewColumn.DisplayMemberBinding>
+                    </GridViewColumn>
                     <GridViewColumn Header="Currency" DisplayMemberBinding="{Binding SelectedRate.ListCurrency}" />
+                    <GridViewColumn>
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Created Date" Command="{Binding SortByCreatedAtCommand}" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.DisplayMemberBinding>
+                            <Binding Path="CreatedAt" />
+                        </GridViewColumn.DisplayMemberBinding>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Updated Date" Command="{Binding SortByUpdatedAtCommand}" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.DisplayMemberBinding>
+                            <Binding Path="UpdatedAt" />
+                        </GridViewColumn.DisplayMemberBinding>
+                    </GridViewColumn>
                     <GridViewColumn Header="From Address" DisplayMemberBinding="{Binding FromAddress.Id}" />
                     <GridViewColumn Header="To Address" DisplayMemberBinding="{Binding ToAddress.Id}" />
-                    <GridViewColumn Header="Created Date" DisplayMemberBinding="{Binding CreatedAt}" />
-                    <GridViewColumn Header="Updated Date" DisplayMemberBinding="{Binding UpdatedAt}" />
                     <GridViewColumn Header="Tracking Number" DisplayMemberBinding="{Binding TrackingCode}" />
                 </GridView>
             </ListView.View>

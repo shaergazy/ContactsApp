@@ -1,38 +1,55 @@
 ﻿using ContactsApp.Services.Interfaces;
 using ContactsApp.ViewModels.Commands;
-using CsvHelper;
 using EasyPost.Models.API;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using Document = iTextSharp.text.Document;
 
 namespace ContactsApp.ViewModels
 {
     public class AllShipmentsViewModel : INotifyPropertyChanged
     {
         private readonly IEasyPostService _easyPostService;
+        private readonly IShipmentService _shipmentService;
+        private bool _isLoading;
 
         public ObservableCollection<Shipment> Shipments { get; set; }
         public ICommand ExportToPdfCommand { get; }
         public ICommand ExportToCsvCommand { get; }
+        public ICommand SortByPriceCommand { get; }
+        public ICommand SortByCreatedAtCommand { get; }
+        public ICommand SortByUpdatedAtCommand { get; }
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
+        }
 
-        public AllShipmentsViewModel(IEasyPostService easyPostService)
+        private bool _isPriceSortedAscending = true;
+        private bool _isCreatedAtSortedAscending = true;
+        private bool _isUpdatedAtSortedAscending = true;
+
+        public AllShipmentsViewModel(IEasyPostService easyPostService, IShipmentService shipmentService)
         {
             _easyPostService = easyPostService;
+            _shipmentService = shipmentService;
             Shipments = new ObservableCollection<Shipment>();
             ExportToPdfCommand = new RelayCommand(ExportToPdf);
             ExportToCsvCommand = new RelayCommand(ExportToCsv);
+            SortByPriceCommand = new RelayCommand(SortByPrice);
+            SortByCreatedAtCommand = new RelayCommand(SortByCreatedAt);
+            SortByUpdatedAtCommand = new RelayCommand(SortByUpdatedAt);
             LoadAllShipments();
         }
 
         private async void LoadAllShipments()
         {
+            IsLoading = true;
             try
             {
                 var shipments = await _easyPostService.GetAllShipmentsAsync();
@@ -46,7 +63,45 @@ namespace ContactsApp.ViewModels
             {
                 MessageBox.Show($"Failed to load shipments: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
+
+        private void SortByPrice()
+        {
+            if (_isPriceSortedAscending)
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderBy(s => s.SelectedRate.Price));
+            else
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderByDescending(s => s.SelectedRate.Price));
+
+            _isPriceSortedAscending = !_isPriceSortedAscending;
+            OnPropertyChanged(nameof(Shipments));
+        }
+
+        private void SortByCreatedAt()
+        {
+            if (_isCreatedAtSortedAscending)
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderBy(s => s.CreatedAt));
+            else
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderByDescending(s => s.CreatedAt));
+
+            _isCreatedAtSortedAscending = !_isCreatedAtSortedAscending;
+            OnPropertyChanged(nameof(Shipments));
+        }
+
+        private void SortByUpdatedAt()
+        {
+            if (_isUpdatedAtSortedAscending)
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderBy(s => s.UpdatedAt));
+            else
+                Shipments = new ObservableCollection<Shipment>(Shipments.OrderByDescending(s => s.UpdatedAt));
+
+            _isUpdatedAtSortedAscending = !_isUpdatedAtSortedAscending;
+            OnPropertyChanged(nameof(Shipments));
+        }
+
         private void ExportToPdf()
         {
             var saveFileDialog = new Microsoft.Win32.SaveFileDialog
@@ -57,39 +112,7 @@ namespace ContactsApp.ViewModels
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                {
-                    Document pdfDoc = new Document(PageSize.A4);
-                    PdfWriter.GetInstance(pdfDoc, stream);
-                    pdfDoc.Open();
-
-                    PdfPTable table = new PdfPTable(9);
-                    table.AddCell("Shipment ID");
-                    table.AddCell("Carrier");
-                    table.AddCell("Service");
-                    table.AddCell("Price");
-                    table.AddCell("Currency");
-                    table.AddCell("From Address");
-                    table.AddCell("To Address");
-                    table.AddCell("Created Date");
-                    table.AddCell("Updated Date");
-
-                    foreach (var shipment in Shipments)
-                    {
-                        table.AddCell(shipment.Id);
-                        table.AddCell(shipment.SelectedRate.Carrier);
-                        table.AddCell(shipment.SelectedRate.Service);
-                        table.AddCell(shipment.SelectedRate.Price.ToString());
-                        table.AddCell(shipment.SelectedRate.ListCurrency);
-                        table.AddCell(shipment.FromAddress.Id);
-                        table.AddCell(shipment.ToAddress.Id);
-                        table.AddCell(shipment.CreatedAt.ToString());
-                        table.AddCell(shipment.UpdatedAt.ToString());
-                    }
-
-                    pdfDoc.Add(table);
-                    pdfDoc.Close();
-                }
+                _shipmentService.ExportToPdf(Shipments, saveFileDialog.FileName);
             }
         }
 
@@ -103,18 +126,7 @@ namespace ContactsApp.ViewModels
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                using (var writer = new StreamWriter(saveFileDialog.FileName))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    csv.WriteHeader<Shipment>();
-                    csv.NextRecord();
-
-                    foreach (var shipment in Shipments)
-                    {
-                        csv.WriteRecord(shipment);
-                        csv.NextRecord();
-                    }
-                }
+                _shipmentService.ExportToCsv(Shipments, saveFileDialog.FileName);
             }
         }
 
