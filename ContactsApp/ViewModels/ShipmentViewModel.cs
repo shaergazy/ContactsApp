@@ -1,14 +1,14 @@
 ﻿using ContactsApp.Models;
 using ContactsApp.Services.DTOs;
 using ContactsApp.Services.Interfaces;
-using ContactsApp.ViewModels;
 using ContactsApp.ViewModels.Commands;
+using ContactsApp.ViewModels;
 using ContactsApp.Views;
 using EasyPost.Models.API;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Input;
+using System.Windows;
 
 public class ShipmentViewModel : INotifyPropertyChanged
 {
@@ -17,11 +17,11 @@ public class ShipmentViewModel : INotifyPropertyChanged
     private readonly IShipmentService _shipmentService;
 
     public ParcelDto Parcel { get; set; } = new ParcelDto();
-    public ObservableCollection<string> Carriers { get; set; } = new ObservableCollection<string> { "USPS", "FedEx", "DHL Express", "UPS" };
-    public ObservableCollection<string> Services { get; set; } = new ObservableCollection<string>();
-    public ObservableCollection<Rate> Rates { get; set; } = new ObservableCollection<Rate>();
-    public ObservableCollection<AddressModel> Addresses { get; set; } = new ObservableCollection<AddressModel>();
-    public ObservableCollection<AddressModel> FromAddresses { get; set; } = new ObservableCollection<AddressModel>();
+    public ObservableCollection<string> Carriers { get; } = new ObservableCollection<string> { "USPS", "FedEx", "UPS" };
+    public ObservableCollection<string> Services { get; } = new ObservableCollection<string>();
+    public ObservableCollection<Rate> Rates { get; } = new ObservableCollection<Rate>();
+    public ObservableCollection<AddressModel> Addresses { get; } = new ObservableCollection<AddressModel>();
+    public ObservableCollection<AddressModel> FromAddresses { get; } = new ObservableCollection<AddressModel>();
 
     private string _selectedCarrier;
     public string SelectedCarrier
@@ -31,8 +31,7 @@ public class ShipmentViewModel : INotifyPropertyChanged
         {
             _selectedCarrier = value;
             OnPropertyChanged(nameof(SelectedCarrier));
-            _ = LoadServicesForCarrierAsync();
-            _ = UpdateRatesAsync();
+            _ = ReloadServicesAndRatesAsync();
         }
     }
 
@@ -56,6 +55,17 @@ public class ShipmentViewModel : INotifyPropertyChanged
         {
             _selectedFromAddress = value;
             OnPropertyChanged(nameof(SelectedFromAddress));
+        }
+    }
+
+    private Rate _selectedRate;
+    public Rate SelectedRate
+    {
+        get => _selectedRate;
+        set
+        {
+            _selectedRate = value;
+            OnPropertyChanged(nameof(SelectedRate));
         }
     }
 
@@ -112,6 +122,12 @@ public class ShipmentViewModel : INotifyPropertyChanged
         }
     }
 
+    private async Task ReloadServicesAndRatesAsync()
+    {
+        await LoadServicesForCarrierAsync();
+        await UpdateRatesAsync();
+    }
+
     private async Task LoadServicesForCarrierAsync()
     {
         try
@@ -144,20 +160,6 @@ public class ShipmentViewModel : INotifyPropertyChanged
         }
     }
 
-    private void UpdateRates(List<Rate> rates)
-    {
-        Rates.Clear();
-
-        if (rates != null)
-        {
-            var filteredRates = rates.Where(rate =>
-              (string.IsNullOrEmpty(SelectedCarrier) || rate.Carrier == SelectedCarrier) &&
-              (string.IsNullOrEmpty(SelectedService) || rate.Service == SelectedService)).ToList();
-
-            UpdateCollection(Rates, filteredRates);
-        }
-    }
-
     private async Task UpdateRatesAsync()
     {
         try
@@ -174,11 +176,47 @@ public class ShipmentViewModel : INotifyPropertyChanged
         }
     }
 
+    private void UpdateRates(List<Rate> rates)
+    {
+        Rates.Clear();
+
+        if (rates != null)
+        {
+            var filteredRates = rates
+                .Where(rate => (string.IsNullOrEmpty(SelectedCarrier) || rate.Carrier == SelectedCarrier) &&
+                               (string.IsNullOrEmpty(SelectedService) || rate.Service == SelectedService))
+                .ToList();
+
+            UpdateCollection(Rates, filteredRates);
+
+            if (Rates.Any())
+            {
+                SelectedRate = Rates.OrderByDescending(rate => EvaluateRate(rate)).FirstOrDefault();
+            }
+        }
+    }
+
+    private double EvaluateRate(Rate rate)
+    {
+        if (double.TryParse(rate.Price, out double parsedPrice))
+        {
+            double priceWeight = 0.6;
+            double deliveryTimeWeight = 0.4;
+            double deliveryDays = rate.DeliveryDays ?? 1;
+
+            return (1 / parsedPrice) * priceWeight + (1 / deliveryDays) * deliveryTimeWeight;
+        }
+        else
+        {
+            throw new InvalidOperationException("Invalid price format");
+        }
+    }
+
     private async Task BuyLabelAsync()
     {
         try
         {
-            var selectedRate = Rates.FirstOrDefault();
+            var selectedRate = SelectedRate ?? Rates.FirstOrDefault();
 
             if (selectedRate == null)
             {
